@@ -48,7 +48,8 @@
 
 (defn channeled
   "Converts a pipeline source into a channel. Currently accepts
-   BufferedReaders, channels, and collections."
+   BufferedReaders, channels, functions (which should return a seq)
+   and collections."
   [source n]
   (let [c (chan 500)]
     (cond
@@ -60,6 +61,12 @@
 
       (coll? source)
       (do (async/onto-chan c (n-or-all n source))
+          c)
+      
+      (fn? source)
+      (do (async/go (doseq [l (n-or-all n (source))]
+                      (>! c l))
+                    (async/close! c))
           c)
 
       (channel? source)
@@ -73,7 +80,8 @@
         source)
 
       :else
-      (throw (ex-info (str "Pipeline's source must be either a BufferedReader, channel, or a coll.\n"
+      (throw (ex-info (str "Pipeline's source must be either a BufferedReader, channel, "
+                           "function, or a coll.\n"
                            "Got " (type source) ".")
                       {:source source})))))
 
@@ -81,7 +89,7 @@
   "Simple utility function that will convert a channel to a lazy seq."
   [c]
   (lazy-seq
-   (when-let [v (<!! c)]
+   (when-some [v (<!! c)]
      (cons v (chan-seq c)))))
 
 (defn seqed
@@ -95,6 +103,9 @@
     (coll? source)
     source
 
+    (fn? source)
+    (source)
+    
     (channel? source)
     (chan-seq source)
 
@@ -174,15 +185,14 @@
           (conj chans to))))
     (transduce (apply comp xfs) conj [] source)))
 
-(defn kickoff
+(defn kickoff-pipeline
   "Given an instance of Pipeline, will fetch its source, turn it into
    a channel, and funnel it into the pipeline's run function, where it
    will process the pipeline with multiple threads. Can take an optional
    n number of records to process, if n is nill all records will be processed."
   ([pipeline args]
-   (kickoff pipeline nil args))
+   (kickoff-pipeline pipeline nil args))
   ([pipeline n args]
-   (System/setProperty "clojure.core.async.pool-size" "16")
    (let [state  (proto/init pipeline args)
          source (channeled (proto/source pipeline state) n)
          chs    (proto/run pipeline state source)]
@@ -193,6 +203,44 @@
            (proto/cleanup pipeline state))
          (recur)))
      chs)))
+
+(defn kickoff-flow
+  "Given a source, turns it into a channel, and funnels the contents through the 
+  xforms provided.  Returns a tuple of the created channels and promise which 
+  will be delivered when processing is completed.
+
+  Takes the following options:
+  
+    :limit - limit the number of items processed to n
+    :on-completed - a fn to call when processing is complete. this fn should take one 
+                    arg, which will be the result of the computation.
+    :collect - if truthy, will collect the output of the last channel into the 
+               returned promise."
+  [source xforms & {:keys [limit on-completed collect]}]
+  (let [source-channel (channeled source limit)
+        chs (apply flow source-channel xforms)
+        completed (promise)]
+    (go-loop [out []]
+      (if-some [item (<! (last chs))]
+        (recur (if collect (conj out item) nil))
+        (let [result (or out :done)]
+          (close! (last chs))
+          (deliver completed result)
+          (when on-completed
+            (on-completed result)))))
+    [chs completed]))
+
+(defn kickoff
+  "Given an instance of Pipeline, will dispatch to `kickoff-pipeline`.
+  Otherwise `kickoff-flow`
+
+  Created to allow backwards compatibility to between pipelines and the
+  lighter-weight api."
+  [& args]
+  (System/setProperty "clojure.core.async.pool-size" "16")
+  (if (satisfies? proto/Pipeline (first args))
+    (apply kickoff-pipeline args)
+    (apply kickoff-flow args)))
 
 (defn tryout
   "Given an instance of Pipeline, will fetch its source and funnel
