@@ -1,4 +1,4 @@
-(ns sentenza.api
+(ns org.purefn.sentenza.api
   "A library for building up pipelines of transducers
    using core.async for parallelism."
   (:require [clojure.string :as str]
@@ -8,8 +8,8 @@
              :refer [>! <! >!! <!! close! chan go-loop]]
             [clojure.core.async.impl.protocols :as async-impl]
             [taoensso.timbre :as log]
-            [sentenza.proto :as proto]
-            [sentenza.annotate :as sann]))
+            [org.purefn.sentenza.proto :as proto]
+            [org.purefn.sentenza.annotate :as sann]))
 
 (defn threaded-pipe
   "Takes elements from the from channel and calls the transformer on it in
@@ -62,7 +62,7 @@
       (coll? source)
       (do (async/onto-chan c (n-or-all n source))
           c)
-      
+
       (fn? source)
       (do (async/go (doseq [l (n-or-all n (source))]
                       (>! c l))
@@ -105,7 +105,7 @@
 
     (fn? source)
     (source)
-    
+
     (channel? source)
     (chan-seq source)
 
@@ -205,16 +205,16 @@
      chs)))
 
 (defn kickoff-flow
-  "Given a source, turns it into a channel, and funnels the contents through the 
-  xforms provided.  Returns a tuple of the created channels and promise which 
+  "Given a source, turns it into a channel, and funnels the contents through the
+  xforms provided.  Returns a tuple of the created channels and promise which
   will be delivered when processing is completed.
 
   Takes the following options:
-  
+
     :limit - limit the number of items processed to n
-    :on-completed - a fn to call when processing is complete. this fn should take one 
+    :on-completed - a fn to call when processing is complete. this fn should take one
                     arg, which will be the result of the computation.
-    :collect - if truthy, will collect the output of the last channel into the 
+    :collect - if truthy, will collect the output of the last channel into the
                returned promise."
   [source xforms & {:keys [limit on-completed collect]}]
   (let [source-channel (channeled source limit)

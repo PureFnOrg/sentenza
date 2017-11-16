@@ -1,4 +1,4 @@
-(ns sentenza.proto)
+(ns org.purefn.sentenza.proto)
 
 (defprotocol Pipeline
   (init [this args]

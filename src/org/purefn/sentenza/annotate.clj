@@ -1,4 +1,4 @@
-(ns sentenza.annotate
+(ns org.purefn.sentenza.annotate
   "Various annotations of metadata that can be added to transducers
    to modify how they are used in the pipeline."
   (:require [taoensso.timbre :as log]

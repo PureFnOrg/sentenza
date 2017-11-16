@@ -1,4 +1,4 @@
-(ns sentenza.xforms
+(ns org.purefn.sentenza.xforms
   "Common transducers that may be useful in data pipelines."
   (:require [clojure.string :as str]
             [taoensso.timbre :as log]))
