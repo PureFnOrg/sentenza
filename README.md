@@ -62,6 +62,7 @@ at the first step:
 ```
 
 
+
 1: Technically map's laziness means that the database insert won't be executed
 just yet, but for the sake of clarity we can ignore this.
 
