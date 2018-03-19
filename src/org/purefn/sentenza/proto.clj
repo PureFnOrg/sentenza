@@ -9,8 +9,3 @@
     "Return a sequential collection of source records that will be fed into the pipeline.")
   (run [this state source]
     "Provides the source seq/chan and lets the provider begin processing."))
-
-(extend-protocol Pipeline
-  Object
-  (init [this args] nil)
-  (cleanup [this state] nil))
