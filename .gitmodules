@@ -1,0 +1,3 @@
+[submodule "docs/themes/landing"]
+	path = docs/themes/landing
+	url = git@github.com:nsomar/github-project-landing-page.git
