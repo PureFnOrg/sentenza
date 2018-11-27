@@ -1,5 +1,5 @@
 (defproject org.purefn/sentenza "0.1.9-SNAPSHOT"
-  :description "Data pipeline for building email records"
+  :description "A library for easier parallel (single-node) processing"
   :dependencies [[org.clojure/clojure "1.9.0" :scope "provided"]
                  [clj-time "0.14.2"]
                  [me.raynes/fs "1.4.6"]
