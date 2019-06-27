@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Leiningen: org.tukaani/xz:1.5">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/tukaani/xz/1.5/xz-1.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

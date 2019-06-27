@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Leiningen: me.raynes/fs:1.4.6">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/me/raynes/fs/1.4.6/fs-1.4.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
