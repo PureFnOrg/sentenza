@@ -201,10 +201,10 @@
        (if (nil? (<! (last chs)))
          (do
            (close! (last chs))
-           (deliver completed :done)
-           (proto/cleanup pipeline state))
+           (proto/cleanup pipeline state)
+           (deliver completed :done))
          (recur)))
-     [chs completed])))
+     {:chans chs :completion completed})))
 
 (defn kickoff-flow
   "Given a source, turns it into a channel, and funnels the contents through the
@@ -230,7 +230,7 @@
           (deliver completed result)
           (when on-completed
             (on-completed result)))))
-    [chs completed]))
+    {:chans chs :completion completed}))
 
 (defn kickoff
   "Given an instance of Pipeline, will dispatch to `kickoff-pipeline`.
