@@ -6,6 +6,7 @@
                  [org.clojure/core.async "0.3.443"]
                  [com.taoensso/timbre "4.10.0"]
                  [cheshire "5.8.0"] ]
+  :deploy-repositories [["releases" {:url "https://clojars.org/repo/" :creds :gpg}]]
   :profiles {:dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]
                                   [com.stuartsierra/component "0.3.2"]
                                   [criterium "0.4.4"]]
