@@ -195,14 +195,16 @@
   ([pipeline n args]
    (let [state  (proto/init pipeline args)
          source (channeled (proto/source pipeline state) n)
-         chs    (proto/run pipeline state source)]
+         chs    (proto/run pipeline state source)
+         completed (promise)]
      (go-loop []
        (if (nil? (<! (last chs)))
          (do
            (close! (last chs))
-           (proto/cleanup pipeline state))
+           (proto/cleanup pipeline state)
+           (deliver completed :done))
          (recur)))
-     chs)))
+     {:chans chs :completion completed})))
 
 (defn kickoff-flow
   "Given a source, turns it into a channel, and funnels the contents through the
@@ -228,7 +230,7 @@
           (deliver completed result)
           (when on-completed
             (on-completed result)))))
-    [chs completed]))
+    {:chans chs :completion completed}))
 
 (defn kickoff
   "Given an instance of Pipeline, will dispatch to `kickoff-pipeline`.
