@@ -1,4 +1,4 @@
-(defproject org.purefn/sentenza "0.2.0-SNAPSHOT"
+(defproject org.purefn/sentenza "0.2.0"
   :description "Data pipeline for building email records"
   :dependencies [[org.clojure/clojure "1.9.0-alpha16"]
                  [clj-time "0.14.2"]
