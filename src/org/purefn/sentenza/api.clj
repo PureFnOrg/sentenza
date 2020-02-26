@@ -155,12 +155,13 @@
            chans [from]
            i 0]
       (let [[xf & rxfs] xfs
+            buf (or (sann/buffer xf) 500)
             ;; If xf is single-threaded it is likely stateful with a volatile
             ;; and needs to be attached to the channel, therefore staying in
             ;; the same thread.
             to (if (paral? xf)
-                      (chan 500)
-                      (chan 500 xf (sann/warner xf)))]
+                 (chan buf)
+                 (chan buf xf (sann/warner xf)))]
         (cond
           (sann/threaded? xf)
           (async/pipeline-blocking (sann/paral xf)
