@@ -155,7 +155,7 @@
            chans [from]
            i 0]
       (let [[xf & rxfs] xfs
-            buf (or (sann/buffer xf) 500)
+            buf (or (sann/size xf) 500)
             ;; If xf is single-threaded it is likely stateful with a volatile
             ;; and needs to be attached to the channel, therefore staying in
             ;; the same thread.
