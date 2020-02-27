@@ -71,6 +71,16 @@
   (some-> (meta xf)
           (every? ks)))
 
+(defn sized
+  "Describes the size of the channel buffer this transducer's results will
+  accumulate into. Defaults to 500 if unset."
+  [xf size]
+  (vary-meta xf assoc ::size size))
+
+(defn size
+  [xf]
+  (-> xf meta ::size))
+
 (s/def ::transducer fn?)
 
 (s/fdef warned
