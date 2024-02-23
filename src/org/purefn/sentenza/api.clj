@@ -216,7 +216,8 @@
 
     :limit - limit the number of items processed to n
     :on-completed - a fn to call when processing is complete. this fn should take one
-                    arg, which will be the result of the computation.
+                    arg, which will be the result of the computation. unless `collect` is set,
+                    return from this function will be delivered to the returned promise.
     :collect - if truthy, will collect the output of the last channel into the
                returned promise."
   [source xforms & {:keys [limit on-completed collect]}]
@@ -226,11 +227,14 @@
     (go-loop [out []]
       (if-some [item (<! (last chs))]
         (recur (if collect (conj out item) nil))
-        (let [result (or out :done)]
+        (let [result (or out :done)
+              on-completed-result (when on-completed (on-completed result))]
           (close! (last chs))
-          (deliver completed result)
-          (when on-completed
-            (on-completed result)))))
+          (deliver completed
+                   (cond
+                     collect out
+                     on-completed on-completed-result
+                     :else :done)))))
     {:chans chs :completion completed}))
 
 (defn kickoff
